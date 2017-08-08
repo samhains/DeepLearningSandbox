@@ -97,12 +97,17 @@ def train(args):
       zoom_range=0.2,
       horizontal_flip=True
   )
+  # print(train_datagen)
+  # train_datagen.classes
 
   train_generator = train_datagen.flow_from_directory(
     args.train_dir,
     target_size=(IM_WIDTH, IM_HEIGHT),
     batch_size=batch_size,
   )
+  with open("labels.txt", "w") as myfile:
+      print('writing labels', train_generator.class_indices)
+      myfile.write("{}\n".format(train_generator.class_indices))
 
   validation_generator = test_datagen.flow_from_directory(
     args.val_dir,
@@ -115,18 +120,22 @@ def train(args):
   model = add_new_last_layer(base_model, nb_classes)
 
   # transfer learning
-  setup_to_transfer_learn(model, base_model)
+  # setup_to_transfer_learn(model, base_model)
 
-  history_tl = model.fit_generator(
-    train_generator,
-    nb_epoch=nb_epoch,
-    samples_per_epoch=nb_train_samples,
-    validation_data=validation_generator,
-    nb_val_samples=nb_val_samples,
-    class_weight='auto')
+  # history_tl = model.fit_generator(
+    # train_generator,
+    # nb_epoch=nb_epoch,
+    # samples_per_epoch=nb_train_samples,
+    # validation_data=validation_generator,
+    # nb_val_samples=nb_val_samples,
+    # class_weight='auto')
 
+  print(nb_train_samples)
+  print(nb_val_samples)
   # fine-tuning
   setup_to_finetune(model)
+  print(nb_train_samples)
+  print(nb_val_samples)
 
   history_ft = model.fit_generator(
     train_generator,

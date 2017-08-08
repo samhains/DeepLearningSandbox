@@ -43,9 +43,10 @@ def plot_preds(image, preds):
   plt.axis('off')
 
   plt.figure()
-  labels = ("cat", "dog")
-  plt.barh([0, 1], preds, alpha=0.5)
-  plt.yticks([0, 1], labels)
+  labels = ("beach", "cow", "dog")
+  print('preds', preds)
+  plt.barh([0, 1, 2], preds, alpha=0.5)
+  plt.yticks([0, 1, 2], labels)
   plt.xlabel('Probability')
   plt.xlim(0,1.01)
   plt.tight_layout()
@@ -67,6 +68,8 @@ if __name__=="__main__":
   if args.image is not None:
     img = Image.open(args.image)
     preds = predict(model, img, target_size)
+    print(preds)
+    print(img)
     plot_preds(img, preds)
 
   if args.image_url is not None:
