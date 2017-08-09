@@ -13,8 +13,8 @@ from keras.optimizers import SGD
 
 
 IM_WIDTH, IM_HEIGHT = 299, 299 #fixed size for InceptionV3
-NB_EPOCHS = 3
-BAT_SIZE = 32
+NB_EPOCHS = 100
+BAT_SIZE = 64
 FC_SIZE = 1024
 NB_IV3_LAYERS_TO_FREEZE = 172
 
