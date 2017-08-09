@@ -10,6 +10,7 @@ from keras.models import Model
 from keras.layers import Dense, GlobalAveragePooling2D
 from keras.preprocessing.image import ImageDataGenerator
 from keras.optimizers import SGD
+from keras.callbacks import ModelCheckpoint
 
 
 IM_WIDTH, IM_HEIGHT = 299, 299 #fixed size for InceptionV3
@@ -137,9 +138,16 @@ def train(args):
   print(nb_train_samples)
   print(nb_val_samples)
 
+  checkpoint_path = "weights/weights.{epoch:02d}-{val_loss:.2f}.hdf5"
+  checkpoint = ModelCheckpoint(
+      checkpoint_path, 
+      monitor='val_loss', 
+      verbose=0, 
+      save_best_only=False)
   history_ft = model.fit_generator(
     train_generator,
     samples_per_epoch=nb_train_samples,
+    callbacks=[checkpoint],
     nb_epoch=nb_epoch,
     validation_data=validation_generator,
     nb_val_samples=nb_val_samples,
