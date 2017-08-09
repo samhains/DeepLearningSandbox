@@ -5,6 +5,8 @@ from PIL import Image
 import requests
 from io import BytesIO
 import matplotlib.pyplot as plt
+import json
+import ast
 
 from keras.preprocessing import image
 from keras.models import load_model
@@ -43,8 +45,11 @@ def plot_preds(image, preds):
   plt.axis('off')
 
   plt.figure()
-  labels = ("beach", "cow", "dog")
-  print('preds', preds)
+  with open('labels.txt', 'r') as labels_file:
+    data = labels_file.read()
+    labels_data = ast.literal_eval(data)
+    labels = tuple(sorted(labels_data, key=labels_data.get))
+  print(labels)
   plt.barh([0, 1, 2], preds, alpha=0.5)
   plt.yticks([0, 1, 2], labels)
   plt.xlabel('Probability')
