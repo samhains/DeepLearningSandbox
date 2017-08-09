@@ -1,6 +1,6 @@
 import os
 from subprocess import call
-
+import img_to_oil
 import magic
 
 DATA_DIR = "./data/train"
@@ -15,8 +15,10 @@ for c in classes:
 
     for image in images:
         file_name = image_dir + image
-        print(file_name)
         mime = magic.from_file(file_name, mime=True)
         if mime != "image/jpeg":
-            # print('removing', file_name)
+            print('removing', file_name)
             os.remove(file_name)
+        else:
+            img_to_oil.convert(file_name)
+
