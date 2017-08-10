@@ -1,5 +1,6 @@
 import sys
 import argparse
+import os
 import numpy as np
 from PIL import Image
 import requests
@@ -34,6 +35,27 @@ def predict(model, img, target_size):
   preds = model.predict(x)
   return preds[0]
 
+def return_preds(image, preds):
+  """Displays image and the top-n predicted probabilities in a bar graph
+  Args:
+    image: PIL image
+    preds: list of predicted labels and their probabilities
+  """
+  labels_obj = {}
+  with open('labels.txt', 'r') as labels_file:
+    data = labels_file.read()
+    labels_data = ast.literal_eval(data)
+    labels = tuple(sorted(labels_data, key=labels_data.get))
+  index = range(len(labels))
+  # preds = np.around(preds, decimals=2)
+  for i, pred in enumerate(preds):
+    if(pred>0.03):
+      label = labels[i]
+      labels_obj[label] = "{:.2f}".format(pred)
+
+
+  return labels_obj
+
 
 def plot_preds(image, preds):
   """Displays image and the top-n predicted probabilities in a bar graph
@@ -49,9 +71,9 @@ def plot_preds(image, preds):
     data = labels_file.read()
     labels_data = ast.literal_eval(data)
     labels = tuple(sorted(labels_data, key=labels_data.get))
-  print(labels)
-  plt.barh([0, 1, 2], preds, alpha=0.5)
-  plt.yticks([0, 1, 2], labels)
+  index = range(len(labels))
+  plt.barh(index, preds, alpha=0.5)
+  plt.yticks(index, labels)
   plt.xlabel('Probability')
   plt.xlim(0,1.01)
   plt.tight_layout()
@@ -61,13 +83,14 @@ def plot_preds(image, preds):
 if __name__=="__main__":
   a = argparse.ArgumentParser()
   a.add_argument("--image", help="path to image")
+  a.add_argument("--image_folder", help="path to image folder")
   a.add_argument("--image_url", help="url to image")
   a.add_argument("--model")
   args = a.parse_args()
 
-  if args.image is None and args.image_url is None:
-    a.print_help()
-    sys.exit(1)
+  # if args.image is None and args.image_url is None and args.img_folder is None:
+    # a.print_help()
+    # sys.exit(1)
 
   model = load_model(args.model)
   if args.image is not None:
@@ -76,6 +99,20 @@ if __name__=="__main__":
     print(preds)
     print(img)
     plot_preds(img, preds)
+
+  if args.image_folder is not None:
+    results = {}
+    img_urls = os.listdir(args.image_folder)
+    print('img_urls', img_urls)
+    for url in img_urls:
+      fname = args.image_folder+"/"+url
+      img = Image.open(fname)
+      preds = predict(model, img, target_size)
+      preds = return_preds(img, preds)
+      results[url] = preds
+    with open('results.oil.json', 'w') as results_file:
+      json.dump(results, results_file)
+
 
   if args.image_url is not None:
     response = requests.get(args.image_url)
