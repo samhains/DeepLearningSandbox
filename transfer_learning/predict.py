@@ -72,8 +72,15 @@ def plot_preds(image, preds):
     labels_data = ast.literal_eval(data)
     labels = tuple(sorted(labels_data, key=labels_data.get))
   index = range(len(labels))
-  plt.barh(index, preds, alpha=0.5)
-  plt.yticks(index, labels)
+  new_labels = [] 
+  new_preds = []
+  for i, pred in enumerate(preds):
+    if pred > 0.05:
+      new_labels.append(labels[i])
+      new_preds.append(pred)
+  new_index = range(len(new_labels))
+  plt.barh(new_index, new_preds, alpha=0.5)
+  plt.yticks(new_index, new_labels)
   plt.xlabel('Probability')
   plt.xlim(0,1.01)
   plt.tight_layout()
@@ -96,8 +103,6 @@ if __name__=="__main__":
   if args.image is not None:
     img = Image.open(args.image)
     preds = predict(model, img, target_size)
-    print(preds)
-    print(img)
     plot_preds(img, preds)
 
   if args.image_folder is not None:
@@ -108,7 +113,7 @@ if __name__=="__main__":
       fname = args.image_folder+"/"+url
       img = Image.open(fname)
       preds = predict(model, img, target_size)
-      preds = return_preds(img, preds)
+      preds = plot_preds(img, preds)
       results[url] = preds
     with open('results.oil.json', 'w') as results_file:
       json.dump(results, results_file)
